@@ -1,4 +1,4 @@
 from fastapi import FastAPI
-import app.initialization  # noqa
+import app.repositories.initialization  # noqa
 
 app = FastAPI()
