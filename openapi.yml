@@ -1,0 +1,176 @@
+openapi: 3.0.0
+info:
+  title: Sirene Backend Server
+  version: 0.1.0
+tags:
+  - name: "music"
+components:
+  schemas:
+    ServerState:
+      properties:
+        playing:
+          type: boolean
+        connectedPorts:
+          type: array
+          items:
+            properties:
+              port:
+                type: string
+        playingMusic:
+          $ref: "#/components/schemas/Music"
+      required:
+        - playing
+        - connectedPorts
+        - playingMusic
+
+    Music:
+      properties:
+        name:
+          type: string
+        length:
+          type: number
+        id:
+          type: integer
+      required:
+        - name
+        - id
+        - length
+
+    DetailedMusic:
+      properties:
+        name:
+          type: string
+        length:
+          type: number
+        id:
+          type: integer
+      required:
+        - name
+        - id
+        - length
+
+    PlayMusicParam:
+      properties:
+        id:
+          type: number
+        play_at:
+          type: number
+        play_device_ports:
+          type: array
+          items:
+            type: string
+        state:
+          enum:
+            - play
+            - paused
+      required:
+        - id
+        - state
+
+paths:
+  "/status":
+    get:
+      description: Get current server state
+      responses:
+        200:
+          description: "returns the current server state"
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/ServerState"
+
+  "/status/play":
+    get:
+      description: Get current playing state
+      responses:
+        200:
+          description: "returns current playing music"
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/DetailedMusic"
+        404:
+          description: "Not playing"
+    post:
+      description: Play specific music
+      requestBody:
+        required: true
+        content:
+          "application/json":
+            schema:
+              $ref: "#/components/schemas/PlayMusicParam"
+      responses:
+        200:
+          description: Successfully updated playing status
+    delete:
+      description: Stop playing music
+      responses:
+        200:
+          description: Successfully stopped playing music
+
+  "/musics":
+    get:
+      description: Get available music list
+      responses:
+        200:
+          description: "list all available musics"
+          content:
+            "application/json":
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Music"
+
+  "/musics/{music_id}":
+    get:
+      description: "Get detailed music info"
+      parameters:
+        - in: path
+          required: true
+          name: music_id
+          schema:
+            type: integer
+      responses:
+        200:
+          description: OK
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/DetailedMusic"
+        404:
+          description: "Not Found"
+
+  "/note":
+    get:
+      description: play a note
+      parameters:
+        - in: query
+          name: p
+          schema:
+            type: string
+          description: specify a port that connect with a device to play the note
+          required: true
+        - in: query
+          name: "n"
+          schema:
+            type: integer
+            minimum: 0
+            maximum: 28
+          required: true
+      responses:
+        200:
+          description: successfully update device playing state
+        400:
+          description: unknown or unavailable port specified
+    delete:
+      parameters:
+        - in: query
+          name: p
+          schema:
+            type: string
+          description: specify a port that connect with a device to stop current note playing. To left this parameter unspecified, let all connected devices stopping playing.
+      responses:
+        200:
+          description: successfully update device playing state
+        400:
+          description: unknown or unavailable port specified
