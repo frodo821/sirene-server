@@ -1,4 +1,4 @@
-from app.infra.serialConnector import SerialConnector
+from app.infra.serial_connector import SerialConnector
 from pretty_midi import Instrument, Note
 from app.domains.midi import MidiFile
 from typing import List, Optional
