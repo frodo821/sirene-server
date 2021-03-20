@@ -12,6 +12,7 @@ uvicorn = {extras = ["standard"], version = "^0.13.4"}
 pretty-midi = "^0.2.9"
 pyyaml = "^5.4.1"
 pyserial = "^3.5"
+pydantic = "^1.8.1"
 
 [tool.poetry.dev-dependencies]
 pylint = "^2.7.2"
