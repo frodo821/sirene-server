@@ -1,0 +1,22 @@
+[tool.poetry]
+name = "sirene-server"
+version = "0.1.0"
+description = "Sirene controller"
+authors = ["frodo821 <sakaic2003@gmail.com>"]
+license = "MIT"
+
+[tool.poetry.dependencies]
+python = "^3.8"
+fastapi = "^0.63.0"
+uvicorn = {extras = ["standard"], version = "^0.13.4"}
+pretty-midi = "^0.2.9"
+pyyaml = "^5.4.1"
+pyserial = "^3.5"
+
+[tool.poetry.dev-dependencies]
+pylint = "^2.7.2"
+autopep8 = "^1.5.6"
+
+[build-system]
+requires = ["poetry>=0.12"]
+build-backend = "poetry.masonry.api"
