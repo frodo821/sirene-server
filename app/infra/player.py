@@ -1,4 +1,5 @@
 from app.infra.serial_connector import SerialConnector
+from fastapi.exceptions import HTTPException
 from pretty_midi import Instrument, Note
 from app.domains.midi import MidiFile
 from typing import List, Optional
@@ -7,22 +8,16 @@ from threading import Thread
 
 
 class MidiPlayer:
-  connectors: List[SerialConnector]
-  music: Optional[MidiFile]
-  running: bool
-  paused: bool
-  worker: Thread
-  ticks: int
-
   def __init__(self, resolution: int):
-    self.connectors = SerialConnector.scanPorts()
-    self.music = None
-    self.running = True
-    self.paused = False
-    self.worker = Thread(target=self.run)
-    self.ticks = 0
-    self.indices = [0] * len(self.connectors)
+    self.connectors: List[SerialConnector] = SerialConnector.scanPorts()
+    self.music: Optional[MidiFile] = None
+    self.running: bool = True
+    self.__paused: bool = False
+    self.worker: Thread = Thread(target=self.run)
+    self.ticks: int = 0
+    self.indices: List[int] = [0] * len(self.connectors)
     self.resolution = resolution
+    self.__loop: bool = False
 
     self.worker.start()
 
@@ -34,12 +29,18 @@ class MidiPlayer:
   def tick_dur(self) -> float:
     return self.__tick_dur
 
+  @property
+  def paused(self) -> bool:
+    return self.__paused
+
   @resolution.setter
-  def set_resolution(self, value: int):
+  def resolution(self, value: int):
     self.__resolution = value
     self.__tick_dur = 1 / value
 
   def close(self):
+    self.running = False
+
     for connector in self.connectors:
       connector.close()
 
@@ -50,6 +51,7 @@ class MidiPlayer:
     self.music = None
     self.ticks = 0
     self.indices = [0] * len(self.connectors)
+    self.__paused = False
 
     for connector in self.connectors:
       connector.write(28)
@@ -61,7 +63,11 @@ class MidiPlayer:
       if not self.connectors[idx:]:
         break
 
-      if inst.is_drum:
+      if inst.is_drum or self.indices[idx] == -1:
+        continue
+
+      if not inst.notes[self.indices[idx]:]:
+        self.indices[idx] = -1
         continue
 
       note: Note = inst.notes[self.indices[idx]]
@@ -73,10 +79,45 @@ class MidiPlayer:
         self.connectors[idx].write(note.pitch - 60)
         self.indices[idx] += 1
 
+  def playNote(self, port: str, note: int):
+    if self.music and not self.__paused:
+      raise HTTPException(409, {"error": "server currently playing a music. pause or stop performance first."})
+
+    conn = [conn for conn in self.connectors if conn.connector.port == port]
+
+    if not conn:
+      raise HTTPException(404, {"error": f"port {port} is not connected."})
+
+    conn[0].write(note)
+
+  def stopNote(self):
+    if self.music and not self.__paused:
+      raise HTTPException(409, {"error": "server currently playing a music. pause or stop performance first."})
+
+    for conn in self.connectors:
+      conn.write(27)
+
+  def pause(self):
+    self.__paused = True
+
+  def resume(self):
+    self.__paused = False
+
+  def loop(self):
+    self.__loop = True
+
+  def unloop(self):
+    self.__loop = False
+
   def run(self):
     while self.running:
-      if not (self.paused or self.music is None):
+      if not (self.__paused or self.music is None):
         self.tick()
         self.tick_dur += 1
+
+      if self.__loop and all(i == -1 for i in self.indices):
+        music = self.music
+        self.reset()
+        self.music = music
 
       sleep(self.tick_dur)
