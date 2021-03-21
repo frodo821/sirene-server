@@ -4,7 +4,7 @@ from typing import List
 
 class SerialConnector:
   def __init__(self, port: str):
-    self.connector = Serial(port)
+    self.connector: Serial = Serial(port)
     self.connector.open()
 
   def write(self, num: int):
