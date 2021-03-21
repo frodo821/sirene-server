@@ -9,7 +9,7 @@ class MidiFile:
 
   def __init__(self, id: int, file: str):
     self.id = id
-    self.name = file.rsplit('/', 1)[1].rsplit('.', 1)[0]
+    self.name = file.replace('\\', '/').rsplit('/', 1)[1].rsplit('.', 1)[0]
     self.midi = PrettyMIDI(file)
     self.duration = self.midi.get_end_time()
 
@@ -17,5 +17,5 @@ class MidiFile:
     return {
         "id": self.id,
         "name": self.name,
-        "duration": self.duration
+        "length": self.duration
     }
