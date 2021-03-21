@@ -1,2 +1,4 @@
 midis/
 .venv/
+__pycache__/
+.ropeproject/
