@@ -1,10 +1,35 @@
-from os.path import dirname, join
-from yaml import safe_load
+from os.path import dirname, join, exists
+from yaml import safe_load, safe_dump
+from app.infra.frontend_loader import FrontendLoader
 from app.infra.player import MidiPlayer
 from app.infra.file_lookup import FileLookup
 
-with open(join(dirname(__file__), '..', 'config.yaml')) as f:
+__all__ = ['frontend_loader', 'player', 'lookup']
+
+config_path = join(dirname(__file__), '..', 'config.yaml')
+
+if not exists(config_path):
+  with open(config_path, 'w', encoding='utf-8') as f:
+    safe_dump(
+        data={
+            'frontend': {
+                'html': './frontend/index.html',
+                'script_base': './frontend/assets/js',
+                'style_base': './frontend/assets/css'
+            },
+            'time_resolution': 128,
+            'midi_dir': './midis'
+        },
+        stream=f,
+        default_flow_style=False,
+        indent=2,
+        sort_keys=True)
+
+with open(config_path) as f:
   config: dict = safe_load(f) or {}
 
-player = MidiPlayer(128)
-lookup = FileLookup(config.get('dir', join(dirname(__file__), '..', '..', 'midis')))
+frontend: dict = config.get('frontend', {})
+
+frontend_loader = FrontendLoader(frontend.get('html'), frontend.get('script_base'), frontend.get('style_base'))
+player = MidiPlayer(config.get('time_resolution', 128))
+lookup = FileLookup(config.get('midi_dir', './midis'))
