@@ -1,10 +1,11 @@
+from threading import Thread
+from time import sleep, time
+from typing import List, Optional
+
+from app.domains.midi import MidiFile
 from app.infra.serial_connector import SerialConnector
 from fastapi.exceptions import HTTPException
 from pretty_midi import Instrument, Note
-from app.domains.midi import MidiFile
-from typing import List, Optional
-from time import sleep
-from threading import Thread
 
 
 class MidiPlayer:
@@ -111,6 +112,7 @@ class MidiPlayer:
 
   def run(self):
     while self.running:
+      frame_start_time = time()
       if not (self.__paused or self.music is None):
         self.tick()
         self.tick_dur += 1
@@ -120,4 +122,4 @@ class MidiPlayer:
         self.reset()
         self.music = music
 
-      sleep(self.tick_dur)
+      sleep(max(self.tick_dur - (time() - frame_start_time), 0))
