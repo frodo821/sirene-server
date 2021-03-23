@@ -44,3 +44,5 @@ $ poetry install
 ```sh
 $ poetry run uvicorn app:app
 ```
+
+起動したのち、ブラウザで`http://localhost:8000`を開くとアプリを使うことができます。
