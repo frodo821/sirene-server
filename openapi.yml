@@ -1,176 +1,353 @@
-openapi: 3.0.0
+openapi: 3.0.2
 info:
-  title: Sirene Backend Server
+  title: FastAPI
   version: 0.1.0
-tags:
-  - name: "music"
+paths:
+  /api/v1/musics:
+    get:
+      summary: Get Music List
+      operationId: get_music_list_api_v1_musics_get
+      responses:
+        "200":
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                title: Response Get Music List Api V1 Musics Get
+                type: array
+                items:
+                  $ref: "#/components/schemas/Music"
+  "/api/v1/musics/{music_id}":
+    get:
+      summary: Get Music
+      operationId: get_music_api_v1_musics__music_id__get
+      parameters:
+        - required: true
+          schema:
+            title: Music Id
+            type: integer
+          name: music_id
+          in: path
+      responses:
+        "200":
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Music"
+        "422":
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+  /api/v1/notes:
+    get:
+      summary: Play Note
+      operationId: play_note_api_v1_notes_get
+      parameters:
+        - required: true
+          schema:
+            title: "N"
+            type: integer
+          name: "n"
+          in: query
+        - required: false
+          schema:
+            title: P
+            type: string
+          name: p
+          in: query
+      responses:
+        "200":
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        "422":
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+    delete:
+      summary: Delete Playing Note
+      operationId: delete_playing_note_api_v1_notes_delete
+      parameters:
+        - required: false
+          schema:
+            title: P
+            type: array
+            items:
+              type: string
+            default: []
+          name: p
+          in: query
+      responses:
+        "200":
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        "422":
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+  /api/v1/status:
+    get:
+      summary: Get Status
+      operationId: get_status_api_v1_status_get
+      responses:
+        "200":
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ServerStatus"
+  /api/v1/status/play:
+    get:
+      summary: Get Playing Music
+      operationId: get_playing_music_api_v1_status_play_get
+      responses:
+        "200":
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Music"
+    post:
+      summary: Post Playing Music
+      operationId: post_playing_music_api_v1_status_play_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PlayMusicParam"
+        required: true
+      responses:
+        "200":
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        "422":
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+    delete:
+      summary: Stop Playing Music
+      operationId: stop_playing_music_api_v1_status_play_delete
+      responses:
+        "200":
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+  "/assets/js/{path}":
+    get:
+      summary: Frontend Script
+      operationId: frontend_script_assets_js__path__get
+      parameters:
+        - required: true
+          schema:
+            title: Path
+            type: string
+          name: path
+          in: path
+      responses:
+        "200":
+          description: Successful Response
+          content:
+            text/javascript:
+              schema:
+                type: string
+        "422":
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+  "/assets/css/{path}":
+    get:
+      summary: Frontend Style
+      operationId: frontend_style_assets_css__path__get
+      parameters:
+        - required: true
+          schema:
+            title: Path
+            type: string
+          name: path
+          in: path
+      responses:
+        "200":
+          description: Successful Response
+          content:
+            text/css:
+              schema:
+                type: string
+        "422":
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+  "/{path}":
+    get:
+      summary: Frontend
+      operationId: frontend__path__get
+      parameters:
+        - required: true
+          schema:
+            title: Path
+            type: string
+          name: path
+          in: path
+      responses:
+        "200":
+          description: Successful Response
+          content:
+            text/html:
+              schema:
+                type: string
+        "422":
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+  /:
+    get:
+      summary: Index
+      operationId: index__get
+      responses:
+        "200":
+          description: Successful Response
+          content:
+            text/html:
+              schema:
+                type: string
 components:
   schemas:
-    ServerState:
+    HTTPValidationError:
+      title: HTTPValidationError
+      type: object
       properties:
-        playing:
-          type: boolean
-        connectedPorts:
+        detail:
+          title: Detail
           type: array
           items:
-            properties:
-              port:
-                type: string
-        playingMusic:
-          $ref: "#/components/schemas/Music"
-      required:
-        - playing
-        - connectedPorts
-        - playingMusic
-
+            $ref: "#/components/schemas/ValidationError"
     Music:
+      title: Music
+      required:
+        - id
+        - name
+        - length
+      type: object
       properties:
+        id:
+          title: Id
+          type: integer
         name:
+          title: Name
           type: string
         length:
+          title: Length
           type: number
-        id:
-          type: integer
+    MusicPlayback:
+      title: MusicPlayback
       required:
-        - name
         - id
+        - name
         - length
-
-    DetailedMusic:
+        - playback_time
+      type: object
       properties:
+        id:
+          title: Id
+          type: integer
         name:
+          title: Name
           type: string
         length:
+          title: Length
           type: number
-        id:
-          type: integer
-      required:
-        - name
-        - id
-        - length
-
+        playback_time:
+          title: Playback Time
+          type: number
+    MusicPlayingState:
+      title: MusicPlayingState
+      enum:
+        - play
+        - paused
+      type: string
+      description: An enumeration.
     PlayMusicParam:
+      title: PlayMusicParam
+      required:
+        - id
+        - state
+      type: object
       properties:
         id:
-          type: number
+          title: Id
+          type: integer
         play_at:
+          title: Play At
           type: number
         play_device_ports:
+          title: Play Device Ports
           type: array
           items:
             type: string
         state:
-          enum:
-            - play
-            - paused
+          $ref: "#/components/schemas/MusicPlayingState"
+    Port:
+      title: Port
       required:
-        - id
-        - state
-
-paths:
-  "/status":
-    get:
-      description: Get current server state
-      responses:
-        200:
-          description: "returns the current server state"
-          content:
-            "application/json":
-              schema:
-                $ref: "#/components/schemas/ServerState"
-
-  "/status/play":
-    get:
-      description: Get current playing state
-      responses:
-        200:
-          description: "returns current playing music"
-          content:
-            "application/json":
-              schema:
-                $ref: "#/components/schemas/DetailedMusic"
-        404:
-          description: "Not playing"
-    post:
-      description: Play specific music
-      requestBody:
-        required: true
-        content:
-          "application/json":
-            schema:
-              $ref: "#/components/schemas/PlayMusicParam"
-      responses:
-        200:
-          description: Successfully updated playing status
-    delete:
-      description: Stop playing music
-      responses:
-        200:
-          description: Successfully stopped playing music
-
-  "/musics":
-    get:
-      description: Get available music list
-      responses:
-        200:
-          description: "list all available musics"
-          content:
-            "application/json":
-              schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/Music"
-
-  "/musics/{music_id}":
-    get:
-      description: "Get detailed music info"
-      parameters:
-        - in: path
-          required: true
-          name: music_id
-          schema:
-            type: integer
-      responses:
-        200:
-          description: OK
-          content:
-            "application/json":
-              schema:
-                $ref: "#/components/schemas/DetailedMusic"
-        404:
-          description: "Not Found"
-
-  "/note":
-    get:
-      description: play a note
-      parameters:
-        - in: query
-          name: p
-          schema:
+        - port
+      type: object
+      properties:
+        port:
+          title: Port
+          type: string
+    ServerStatus:
+      title: ServerStatus
+      required:
+        - playing
+        - connectedPorts
+      type: object
+      properties:
+        playing:
+          title: Playing
+          type: boolean
+        connectedPorts:
+          title: Connected Ports
+          type: array
+          items:
+            $ref: "#/components/schemas/Port"
+        playingMusic:
+          $ref: "#/components/schemas/MusicPlayback"
+    ValidationError:
+      title: ValidationError
+      required:
+        - loc
+        - msg
+        - type
+      type: object
+      properties:
+        loc:
+          title: Location
+          type: array
+          items:
             type: string
-          description: specify a port that connect with a device to play the note
-          required: true
-        - in: query
-          name: "n"
-          schema:
-            type: integer
-            minimum: 0
-            maximum: 28
-          required: true
-      responses:
-        200:
-          description: successfully update device playing state
-        400:
-          description: unknown or unavailable port specified
-    delete:
-      parameters:
-        - in: query
-          name: p
-          schema:
-            type: string
-          description: specify a port that connect with a device to stop current note playing. To left this parameter unspecified, let all connected devices stopping playing.
-      responses:
-        200:
-          description: successfully update device playing state
-        400:
-          description: unknown or unavailable port specified
+        msg:
+          title: Message
+          type: string
+        type:
+          title: Error Type
+          type: string
