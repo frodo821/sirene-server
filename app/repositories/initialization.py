@@ -13,7 +13,7 @@ if not exists(config_path):
     safe_dump(
         data={
             'frontend': {
-                'base_path': './frontend',
+                'base_path': './frontend/public',
             },
             'time_resolution': 128,
             'midi_dir': './midis'
