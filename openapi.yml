@@ -48,22 +48,19 @@ paths:
       parameters:
         - required: true
           schema:
-            title: "N"
+            title: Note
             type: integer
           name: "n"
           in: query
         - required: false
           schema:
-            title: P
+            title: Port
             type: string
           name: p
           in: query
       responses:
         "200":
           description: Successful Response
-          content:
-            application/json:
-              schema: {}
         "422":
           description: Validation Error
           content:
@@ -86,9 +83,6 @@ paths:
       responses:
         "200":
           description: Successful Response
-          content:
-            application/json:
-              schema: {}
         "422":
           description: Validation Error
           content:
@@ -129,9 +123,6 @@ paths:
       responses:
         "200":
           description: Successful Response
-          content:
-            application/json:
-              schema: {}
         "422":
           description: Validation Error
           content:
@@ -144,9 +135,6 @@ paths:
       responses:
         "200":
           description: Successful Response
-          content:
-            application/json:
-              schema: {}
   "/assets/js/{path}":
     get:
       summary: Frontend Script
@@ -252,12 +240,14 @@ components:
         id:
           title: Id
           type: integer
+          minimum: 0
         name:
           title: Name
           type: string
         length:
           title: Length
           type: number
+          minimum: 0
     MusicPlayback:
       title: MusicPlayback
       required:
@@ -270,15 +260,18 @@ components:
         id:
           title: Id
           type: integer
+          minimum: 0
         name:
           title: Name
           type: string
         length:
           title: Length
           type: number
+          minimum: 0
         playback_time:
           title: Playback Time
           type: number
+          minimum: 0
     MusicPlayingState:
       title: MusicPlayingState
       enum:
@@ -296,9 +289,11 @@ components:
         id:
           title: Id
           type: integer
+          minimum: 0
         play_at:
           title: Play At
           type: number
+          minimum: 0
         play_device_ports:
           title: Play Device Ports
           type: array

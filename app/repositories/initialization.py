@@ -13,9 +13,7 @@ if not exists(config_path):
     safe_dump(
         data={
             'frontend': {
-                'html': './frontend/index.html',
-                'script_base': './frontend/assets/js',
-                'style_base': './frontend/assets/css'
+                'base_path': './frontend',
             },
             'time_resolution': 128,
             'midi_dir': './midis'
@@ -30,6 +28,6 @@ with open(config_path) as f:
 
 frontend: dict = config.get('frontend', {})
 
-frontend_loader = FrontendLoader(frontend.get('html'), frontend.get('script_base'), frontend.get('style_base'))
+frontend_loader = FrontendLoader(frontend.get('base_path'))
 player = MidiPlayer(config.get('time_resolution', 128))
 lookup = FileLookup(config.get('midi_dir', './midis'))

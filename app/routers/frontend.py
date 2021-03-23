@@ -1,35 +1,20 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Response
 from app.repositories.initialization import frontend_loader
-from app.infra.responses import HTMLResponse, JavascriptResponse, StyleSheetResponse
 
 router = APIRouter()
 
 
-@router.get('/assets/js/{path:path}', response_class=JavascriptResponse)
-def frontend_script(path: str):
-  content = frontend_loader.get_script(path)
-
-  if content is None:
-    raise HTTPException(404)
-
-  return JavascriptResponse(content)
-
-
-@router.get('/assets/css/{path:path}', response_class=StyleSheetResponse)
-def frontend_style(path: str):
-  content = frontend_loader.get_style(path)
-
-  if content is None:
-    raise HTTPException(404)
-
-  return StyleSheetResponse(content)
-
-
-@router.get('/{path:path}', response_class=HTMLResponse)
+@router.get('/{path:path}')
 def frontend(path: str):
-  return HTMLResponse(frontend_loader.get_html(), media_type="text/html")
+  content = frontend_loader.get_file(path)
+  if content is None:
+    raise HTTPException(404)
+  return Response(content[0], media_type=content[1])
 
 
-@router.get('/', response_class=HTMLResponse)
+@router.get('/')
 def index():
-  return HTMLResponse(frontend_loader.get_html())
+  content = frontend_loader.get_file('')
+  if content is None:
+    raise HTTPException(404)
+  return Response(content[0], media_type=content[1])

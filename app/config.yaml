@@ -1,6 +1,4 @@
 frontend:
-  html: ./frontend/index.html
-  script_base: ./frontend/assets/js
-  style_base: ./frontend/assets/css
+  base_path: ./frontend
 midi_dir: ./midis
 time_resolution: 128
