@@ -39,6 +39,14 @@ class MidiPlayer:
     self.__resolution = value
     self.__tick_dur = 1 / value
 
+  @property
+  def playback_time(self) -> float:
+    return self.__tick_dur * self.ticks
+
+  @playback_time.setter
+  def playback_time(self, value: float):
+    self.ticks = int(value / self.__tick_dur)
+
   def close(self):
     self.running = False
 
@@ -49,7 +57,7 @@ class MidiPlayer:
     if not self.running:
       raise RuntimeError("Worker already died")
 
-    self.music = None
+    self.music: Optional[MidiFile] = None
     self.ticks = 0
     self.indices = [0] * len(self.connectors)
     self.__paused = False
@@ -58,8 +66,6 @@ class MidiPlayer:
       connector.write(28)
 
   def tick(self):
-    assert self.music is not None
-
     for idx, inst in enumerate(self.music.midi.instruments):
       if not self.connectors[idx:]:
         break
@@ -115,10 +121,10 @@ class MidiPlayer:
       frame_start_time = time()
       if not (self.__paused or self.music is None):
         self.tick()
-        self.tick_dur += 1
+        self.ticks += 1
 
       if self.__loop and all(i == -1 for i in self.indices):
-        music = self.music
+        music: MidiFile = self.music
         self.reset()
         self.music = music
 

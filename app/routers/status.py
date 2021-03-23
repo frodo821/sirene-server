@@ -1,8 +1,11 @@
-from fastapi import APIRouter, Body
-from app.usecases.get_server_status import GetServerStatus
+from typing import Optional
+
+from app.domains.music import Music
+from app.domains.play_music_params import MusicPlayingState, PlayMusicParam
+from app.repositories.initialization import lookup, player
 from app.repositories.server import ServerRepository, ServerStatus
-from app.repositories.initialization import player, lookup
-from app.domains.play_music_params import PlayMusicParam
+from app.usecases.get_server_status import GetServerStatus
+from fastapi import APIRouter, Body, HTTPException
 
 router = APIRouter(prefix='/status')
 
@@ -15,16 +18,45 @@ def get_status():
   return dict(status)
 
 
-@router.get('/play')
+@router.get('/play', response_model=Optional[Music])
 def get_playing_music():
-  pass
+  if player.music is None:
+    return None
+  return player.music.json()
 
 
 @router.post('/play')
 def post_playing_music(play_params: PlayMusicParam = Body(...)):
-  pass
+  if play_params.state == MusicPlayingState.paused:
+    player.pause()
+    return True
+
+  if player.music is None:
+    music = lookup.lookup(play_params.id)
+    if music is None:
+      raise HTTPException(404)
+    player.music = music
+    player.resume()
+    return True
+
+  if player.music.id == play_params.id:
+    if play_params.state == MusicPlayingState.play:
+      player.resume()
+    else:
+      player.pause()
+    return True
+
+  player.reset()
+  music = lookup.lookup(play_params.id)
+
+  if music is None:
+    raise HTTPException(404)
+
+  player.music = music
+  return True
 
 
 @router.delete('/play')
 def stop_playing_music():
-  pass
+  player.reset()
+  return True

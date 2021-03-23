@@ -10,8 +10,20 @@ class ServerRepository(ServerRepositoryInterface):
     self.lookup = lookup
 
   def get_current_status(self):
+    playing = bool(self.player.music) and not self.player.paused
+    connectedPorts = [{"port": conn.connector.port} for conn in self.player.connectors]
+
+    if self.player.music is None:
+      return ServerStatus(
+          playing=playing,
+          connectedPorts=connectedPorts,
+          playingMusic=None
+      )
+
+    music = self.player.music.json()
+    music['playback_time'] = self.player.playback_time
+
     return ServerStatus(
-        playing=bool(self.player.music) and not self.player.paused,
-        connectedPorts=[{"port": conn.connector.port} for conn in self.player.connectors],
-        playingMusic=self.player.music.json() if self.player.music else None
-    )
+        playing=playing,
+        connectedPorts=connectedPorts,
+        playingMusic=music)

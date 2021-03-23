@@ -1,13 +1,22 @@
-from fastapi.routing import APIRouter
+from typing import List
+
+from app.domains.music import Music
+from app.repositories.initialization import lookup
+from fastapi.routing import APIRouter, HTTPException
 
 router = APIRouter(prefix='/musics')
 
 
-@router.get('')
+@router.get('', response_model=List[Music])
 def get_music_list():
-  pass
+  return [file.json() for file in lookup.files]
 
 
-@router.get('/{music_id}')
+@router.get('/{music_id}', response_model=Music)
 def get_music(music_id: int):
-  pass
+  music = lookup.lookup(music_id)
+
+  if music is None:
+    raise HTTPException(404)
+
+  return music.json()

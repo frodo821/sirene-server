@@ -14,6 +14,6 @@ class FileLookup:
     self.files = [MidiFile(idx, path) for idx, path in enumerate(paths)]
 
   def lookup(self, id: int) -> Optional[MidiFile]:
-    if self.files[id:]:
+    if not self.files[id:]:
       return None
     return self.files[id]
