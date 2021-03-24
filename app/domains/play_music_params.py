@@ -14,4 +14,5 @@ class PlayMusicParam(BaseModel):
   id: int
   play_at: Optional[float]
   play_device_ports: Optional[List[str]]
+  loop_play: Optional[bool]
   state: MusicPlayingState

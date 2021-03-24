@@ -27,9 +27,11 @@ def get_playing_music():
 
 @router.post('/play')
 def post_playing_music(play_params: PlayMusicParam = Body(...)):
-  if play_params.state == MusicPlayingState.paused:
-    player.pause()
-    return True
+  if play_params.loop_play and not player.looping:
+    player.loop()
+
+  if not play_params.loop_play and player.looping:
+    player.unloop()
 
   if player.music is None:
     music = lookup.lookup(play_params.id)
@@ -51,6 +53,11 @@ def post_playing_music(play_params: PlayMusicParam = Body(...)):
 
   if music is None:
     raise HTTPException(404)
+
+  if play_params.state == MusicPlayingState.play:
+    player.resume()
+  else:
+    player.pause()
 
   player.music = music
   return True

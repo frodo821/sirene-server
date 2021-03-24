@@ -116,6 +116,10 @@ class MidiPlayer:
   def unloop(self):
     self.__loop = False
 
+  @property
+  def looping(self) -> bool:
+    return self.__loop
+
   def run(self):
     while self.running:
       frame_start_time = time()
