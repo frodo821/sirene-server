@@ -1,4 +1,4 @@
-midis/
+*.mid
 .venv/
 __pycache__/
 .ropeproject/
