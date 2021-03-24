@@ -119,13 +119,17 @@ class MidiPlayer:
   def run(self):
     while self.running:
       frame_start_time = time()
+
       if not (self.__paused or self.music is None):
         self.tick()
         self.ticks += 1
 
-      if self.__loop and all(i == -1 for i in self.indices):
-        music: MidiFile = self.music
-        self.reset()
-        self.music = music
+      if all(i == -1 for i in self.indices):
+        if self.__loop:
+          music: MidiFile = self.music
+          self.reset()
+          self.music = music
+        else:
+          self.reset()
 
       sleep(max(self.tick_dur - (time() - frame_start_time), 0))
