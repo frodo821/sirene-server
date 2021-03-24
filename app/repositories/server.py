@@ -17,8 +17,8 @@ class ServerRepository(ServerRepositoryInterface):
       return ServerStatus(
           playing=playing,
           connectedPorts=connectedPorts,
-          playingMusic=None
-      )
+          playingMusic=None,
+          loop_play=self.player.looping)
 
     music = self.player.music.json()
     music['playback_time'] = self.player.playback_time
@@ -26,4 +26,5 @@ class ServerRepository(ServerRepositoryInterface):
     return ServerStatus(
         playing=playing,
         connectedPorts=connectedPorts,
-        playingMusic=music)
+        playingMusic=music,
+        loop_play=self.player.looping)

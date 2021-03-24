@@ -13,3 +13,4 @@ class ServerStatus(BaseModel):
   playing: bool
   connectedPorts: List[Port]
   playingMusic: Optional[MusicPlayback]
+  loop_play: bool
