@@ -33,10 +33,19 @@ def post_playing_music(play_params: PlayMusicParam = Body(...)):
   if not play_params.loop_play and player.looping:
     player.unloop()
 
+  if play_params.id is None:
+    if play_params.state == MusicPlayingState.play:
+      player.resume()
+    else:
+      player.pause()
+    return True
+
   if player.music is None:
     music = lookup.lookup(play_params.id)
+
     if music is None:
       raise HTTPException(404)
+
     player.music = music
     player.resume()
     return True

@@ -11,7 +11,7 @@ class MusicPlayingState(str, Enum):
 
 
 class PlayMusicParam(BaseModel):
-  id: int
+  id: Optional[int]
   play_at: Optional[float]
   play_device_ports: Optional[List[str]]
   loop_play: Optional[bool]
