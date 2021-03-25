@@ -41,7 +41,7 @@ class MidiPlayer:
 
   @property
   def playback_time(self) -> float:
-    return self.__tick_dur * self.ticks
+    return self.__tick_dur * self.ticks * 4
 
   @playback_time.setter
   def playback_time(self, value: float):
@@ -79,12 +79,12 @@ class MidiPlayer:
 
       note: Note = inst.notes[self.indices[idx]]
 
-      if abs(note.end - self.ticks / self.resolution) < self.tick_dur:
+      if abs(note.end / 4 - self.ticks * self.__tick_dur) < self.tick_dur:
         self.connectors[idx].write(27)
-
-      elif abs(note.start - self.ticks / self.resolution) < self.tick_dur:
-        self.connectors[idx].write(note.pitch - 60)
         self.indices[idx] += 1
+
+      if abs(note.start / 4 - self.ticks * self.__tick_dur) < self.tick_dur:
+        self.connectors[idx].write(note.pitch - 60)
 
   def playNote(self, port: str, note: int):
     if self.music and not self.__paused:
@@ -106,6 +106,9 @@ class MidiPlayer:
 
   def pause(self):
     self.__paused = True
+
+    for connector in self.connectors:
+      connector.write(27)
 
   def resume(self):
     self.__paused = False
