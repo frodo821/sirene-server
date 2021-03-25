@@ -1,11 +1,16 @@
-from serial import Serial
+from serial import Serial, PARITY_NONE, EIGHTBITS, STOPBITS_ONE
 from typing import List
 
 
 class SerialConnector:
   def __init__(self, port: str):
-    self.connector: Serial = Serial(port)
-    self.connector.open()
+    self.connector: Serial = Serial(
+        port,
+        baudrate=9600,
+        parity=PARITY_NONE,
+        bytesize=EIGHTBITS,
+        stopbits=STOPBITS_ONE,
+        timeout=5)
 
   def write(self, num: int):
     self.connector.write(f'{num}.'.encode('ascii'))
