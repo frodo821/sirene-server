@@ -17,6 +17,7 @@ class MidiPlayer:
     self.worker: Thread = Thread(target=self.run)
     self.ticks: int = 0
     self.indices: List[int] = [0] * len(self.connectors)
+    self.playing_notes: List[int] = [-1] * len(self.connectors)
     self.resolution = resolution
     self.__loop: bool = False
 
@@ -60,6 +61,7 @@ class MidiPlayer:
     self.music: Optional[MidiFile] = None
     self.ticks = 0
     self.indices = [0] * len(self.connectors)
+    self.playing_notes = [-1] * len(self.connectors)
     self.__paused = False
 
     for connector in self.connectors:
@@ -82,9 +84,12 @@ class MidiPlayer:
       if abs(note.end / 4 - self.ticks * self.__tick_dur) < self.tick_dur:
         self.connectors[idx].write(27)
         self.indices[idx] += 1
+        self.playing_notes[idx] = -1
 
       if abs(note.start / 4 - self.ticks * self.__tick_dur) < self.tick_dur:
-        self.connectors[idx].write(note.pitch - 60)
+        pitch = note.pitch - 60
+        self.connectors[idx].write(pitch)
+        self.playing_notes[idx] = pitch
 
   def playNote(self, port: str, note: int):
     if self.music and not self.__paused:
