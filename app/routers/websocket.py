@@ -8,16 +8,17 @@ from app.repositories.initialization import player
 router = APIRouter()
 
 
-@router.websocket('')
+@router.websocket('/ws')
 async def connect_websocket(ws: WebSocket):
   await ws.accept()
 
   try:
     while True:
-      ws.send_json({
-          "notes": player.playing_notes,
-          "time": player.playback_time
-      })
+      if player.music and not player.paused:
+        await ws.send_json({
+            "notes": player.playing_notes,
+            "time": player.playback_time
+        })
       await sleep(0.1)
-  finally:
+  except:
     await ws.close()
