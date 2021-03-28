@@ -9,8 +9,8 @@ from pretty_midi import Instrument, Note
 
 
 class MidiPlayer:
-  def __init__(self, resolution: int):
-    self.connectors: List[SerialConnector] = SerialConnector.scanPorts()
+  def __init__(self, resolution: int, *, use_experimental_arduino_driver=False):
+    self.connectors: List[SerialConnector] = SerialConnector.scanPorts(use_experimental_arduino_driver=use_experimental_arduino_driver)
     self.music: Optional[MidiFile] = None
     self.running: bool = True
     self.__paused: bool = False
