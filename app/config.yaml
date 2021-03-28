@@ -1,4 +1,0 @@
-frontend:
-  base_path: ./frontend/public
-midi_dir: ./midis
-time_resolution: 256
