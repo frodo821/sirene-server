@@ -1,5 +1,6 @@
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+import app.logger
 from app.repositories.initialization import player
 from app.routers import router
 from app.routers.frontend import router as frontend_router
