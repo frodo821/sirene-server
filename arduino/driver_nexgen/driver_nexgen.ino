@@ -1,15 +1,3 @@
-#include <math.h>
-#define _USE_ALTO_RECODER_FINGER
-#include "finger.h"
-#define DEBUG 1
-typedef unsigned long long size_t;
-
-#define CMD_GET_SIGNATURE 0
-#define CMD_PLAY_NOTE 1
-#define SIGNATURE_SOPRANO 0x0b
-#define SIGNATURE_ALTO 0xbe
-#define GET_FINGER(x, y) pgm_read_byte(&(FING_STEP[x][y]))
-
 /**
  * ピン3-13を使用中
  * 
@@ -17,6 +5,82 @@ typedef unsigned long long size_t;
  * ピン4-13は指制御です。
  * ピン2はサミング制御です。
  */
+
+#include <math.h>
+#define _USE_ALTO_RECODER_FINGER
+#include "finger.h"
+// typedef unsigned long long size_t;
+
+#define CMD_GET_SIGNATURE 0
+#define CMD_PLAY_NOTE 1
+
+static inline void play(char note)
+{
+  switch (note)
+  {
+  case 0:
+  case 1:
+  case 2:
+  case 3:
+  case 4:
+  case 5:
+  case 6:
+  case 7:
+  case 8:
+  case 9:
+  case 10:
+  case 11:
+  case 12:
+  case 13:
+  case 14:
+  case 15:
+  case 16:
+  case 17:
+  case 18:
+  case 19:
+  case 20:
+  case 21:
+  case 22:
+  case 23:
+  case 24:
+  case 25:
+  case 26:
+
+    analogWrite(3, GET_FINGER(note, 11));
+    for (short i = 0; i < 11; i++)
+    {
+      if (i == 0)
+      {
+        digitalWrite(2, GET_FINGER(note, 0));
+      }
+      else
+      {
+        digitalWrite(i + 3, GET_FINGER(note, i));
+      }
+    }
+    break;
+
+  case 27:
+    analogWrite(3, 255);
+    break;
+
+  case 28:
+    for (short i = 0; i < 14; i++)
+    {
+      if (i == 0)
+      {
+        digitalWrite(2, 0);
+        continue;
+      }
+      digitalWrite(i + 3, 0);
+    }
+    analogWrite(3, 255);
+    break;
+
+  default:
+    break;
+  }
+}
 
 void setup()
 {
@@ -48,78 +112,12 @@ void loop()
   switch (buffer[0])
   {
   case CMD_GET_SIGNATURE:
-#if USE_ALTO_RECODER_FINGER
-    Serial.write(SIGNATURE_ALTO);
-#else
-    Serial.write(SIGNATURE_SOPRANO);
-#endif
-    break;
+    Serial.write(SIRENE_TYPE_SIGNATURE);
+    return;
 
   case CMD_PLAY_NOTE:
-    switch (buffer[1])
-    {
-    case 0:
-    case 1:
-    case 2:
-    case 3:
-    case 4:
-    case 5:
-    case 6:
-    case 7:
-    case 8:
-    case 9:
-    case 10:
-    case 11:
-    case 12:
-    case 13:
-    case 14:
-    case 15:
-    case 16:
-    case 17:
-    case 18:
-    case 19:
-    case 20:
-    case 21:
-    case 22:
-    case 23:
-    case 24:
-    case 25:
-    case 26:
-
-      analogWrite(3, GET_FINGER(buffer[1], 11));
-      for (short i = 0; i < 11; i++)
-      {
-        if (i == 0)
-        {
-          digitalWrite(2, GET_FINGER(buffer[1], 0));
-        }
-        else
-        {
-          digitalWrite(i + 3, GET_FINGER(buffer[1], i));
-        }
-      }
-      break;
-
-    case 27:
-      analogWrite(3, 255);
-      break;
-
-    case 28:
-      for (short i = 0; i < 14; i++)
-      {
-        if (i == 0)
-        {
-          digitalWrite(2, 0);
-          continue;
-        }
-        digitalWrite(i + 3, 0);
-      }
-      analogWrite(3, 255);
-      break;
-
-    default:
-      break;
-    }
+    play(buffer[1]);
+    return;
 
   default:
     return;
