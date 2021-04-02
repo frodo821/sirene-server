@@ -8,6 +8,7 @@ typedef unsigned long long size_t;
 #define CMD_PLAY_NOTE 1
 #define SIGNATURE_SOPRANO 0x0b
 #define SIGNATURE_ALTO 0xbe
+#define GET_FINGER(x, y) pgm_read_byte(&(FING_STEP[x][y]))
 
 /**
  * ピン3-13を使用中
@@ -21,7 +22,7 @@ void setup()
 {
   TCCR2B &= B11111000;
   TCCR2B |= B00000010;
-  Serial.begin(9600);
+  Serial.begin(19200);
   Serial.setTimeout(600000UL);
   for (int i = 2; i < 14; i++)
   {
@@ -35,6 +36,8 @@ void setup()
 void loop()
 {
   uint8_t buffer[2];
+  if (Serial.available() < 2)
+    return;
   size_t read_len = Serial.readBytes(buffer, 2);
 
   if (read_len != 2)
@@ -46,9 +49,9 @@ void loop()
   {
   case CMD_GET_SIGNATURE:
 #if USE_ALTO_RECODER_FINGER
-    Serial.write(22);
+    Serial.write(SIGNATURE_ALTO);
 #else
-    Serial.write(8);
+    Serial.write(SIGNATURE_SOPRANO);
 #endif
     break;
 
@@ -83,16 +86,16 @@ void loop()
     case 25:
     case 26:
 
-      analogWrite(3, FING_STEP[buffer[1]][11]);
+      analogWrite(3, GET_FINGER(buffer[1], 11));
       for (short i = 0; i < 11; i++)
       {
         if (i == 0)
         {
-          digitalWrite(2, FING_STEP[buffer[1]][0]);
+          digitalWrite(2, GET_FINGER(buffer[1], 0));
         }
         else
         {
-          digitalWrite(i + 3, FING_STEP[buffer[1]][i]);
+          digitalWrite(i + 3, GET_FINGER(buffer[1], i));
         }
       }
       break;

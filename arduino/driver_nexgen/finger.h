@@ -1,7 +1,7 @@
 #ifndef __FINGER_H_INCLUDED
 #define __FINGER_H_INCLUDED
 #ifndef USE_ALTO_RECODER_FINGER
-const unsigned int FING_STEP[27][13] = {
+const unsigned char FING_STEP[27][13] PROGMEM = {
   {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 187}, // 0 ド
   {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 187}, // 1 ド#
   {1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 187}, // 2 レ
@@ -31,7 +31,7 @@ const unsigned int FING_STEP[27][13] = {
   {0, 1, 1, 0, 1, 1, 0, 1, 1, 0, 0, 152}  //26 レ
 };
 #else
-const unsigned int FING_STEP[27][13] = {
+const unsigned char FING_STEP[27][13] PROGMEM = {
   {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
   {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0},
   {1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0},
