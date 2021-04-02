@@ -1,5 +1,7 @@
-from serial import Serial, PARITY_NONE, EIGHTBITS, STOPBITS_ONE
+from serial import Serial
 from typing import List
+from time import sleep
+from warnings import warn
 
 
 class SerialConnector:
@@ -13,16 +15,15 @@ class SerialConnector:
   def __init__(self, port: str, *, use_experimental_arduino_driver=False):
     self.connector: Serial = Serial(
         port,
-        baudrate=9600,
-        parity=PARITY_NONE,
-        bytesize=EIGHTBITS,
-        stopbits=STOPBITS_ONE,
-        timeout=5)
+        baudrate=19200,
+        timeout=1)
 
     self.kind = SerialConnector.TYPE_UNKNOWN
 
     if use_experimental_arduino_driver:
-      self.connector.write(b'\x00\x00')
+      # 始めに1.6秒以上のウェイトがないとなぜか読み書きがうまくいかない
+      sleep(1.6)
+      self.connector.write(b'\0\0')
       data = self.connector.read()
 
       if not data:
@@ -43,7 +44,10 @@ class SerialConnector:
     if self.kind == SerialConnector.TYPE_UNKNOWN:
       self.connector.write(f'{num}.'.encode('ascii'))
     else:
-      self.connector.write(bytes([1, num]))
+      if 0 <= num <= 255:
+        self.connector.write(bytes([1, num]))
+      else:
+        warn(f"Out of bound note: {num}, it may be skipped.", RuntimeWarning)
 
     self.connector.flushInput()
     self.connector.flushOutput()
@@ -59,7 +63,10 @@ class SerialConnector:
 
       try:
         ports.append(cls(port, use_experimental_arduino_driver=use_experimental_arduino_driver))
-      except:
+      except RuntimeError as err:
+        print(err)
         continue
+      except:
+        pass
 
     return ports

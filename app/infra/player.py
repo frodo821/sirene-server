@@ -1,3 +1,5 @@
+from sys import exc_info
+from traceback import print_exception
 from threading import Thread
 from time import sleep, time
 from typing import List, Optional
@@ -130,18 +132,21 @@ class MidiPlayer:
 
   def run(self):
     while self.running:
-      frame_start_time = time()
+      try:
+        frame_start_time = time()
 
-      if not (self.__paused or self.music is None):
-        self.tick()
-        self.ticks += 1
+        if not (self.__paused or self.music is None):
+          self.tick()
+          self.ticks += 1
 
-      if all(i == -1 for i in self.indices):
-        if self.__loop:
-          music: MidiFile = self.music
-          self.reset()
-          self.music = music
-        else:
-          self.reset()
+        if all(i == -1 for i in self.indices):
+          if self.__loop:
+            music: MidiFile = self.music
+            self.reset()
+            self.music = music
+          else:
+            self.reset()
 
-      sleep(max(self.tick_dur - (time() - frame_start_time), 0))
+        sleep(max(self.tick_dur - (time() - frame_start_time), 0))
+      except:
+        print_exception(*exc_info())
