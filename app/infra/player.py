@@ -83,12 +83,12 @@ class MidiPlayer:
 
       note: Note = inst.notes[self.indices[idx]]
 
-      if abs(note.end / 4 - self.ticks * self.__tick_dur) < self.tick_dur:
+      if abs(note.end - self.ticks * self.__tick_dur) < self.tick_dur:
         self.connectors[idx].write(27)
         self.indices[idx] += 1
         self.playing_notes[idx] = -1
 
-      if abs(note.start / 4 - self.ticks * self.__tick_dur) < self.tick_dur:
+      if abs(note.start - self.ticks * self.__tick_dur) < self.tick_dur:
         pitch = note.pitch - 60
         self.connectors[idx].write(pitch)
         self.playing_notes[idx] = pitch
