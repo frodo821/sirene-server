@@ -16,6 +16,7 @@ pretty-midi = "^0.2.9"
 pyyaml = "^5.4.1"
 pyserial = "^3.5"
 pydantic = "^1.8.1"
+pysinewave = "^0.0.6"
 
 [tool.poetry.dev-dependencies]
 pylint = "^2.7.2"
