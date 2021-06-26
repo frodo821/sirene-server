@@ -157,7 +157,8 @@ class MidiPlayer:
             self.reset()
 
         sleep_start = time()
-        while (max(self.tick_dur - (sleep_start - frame_start_time), 0)) > (time() - sleep_start):
+        wait = max(self.tick_dur - (sleep_start - frame_start_time), 0)
+        while wait > (time() - sleep_start):
           sleep(0)
 
       except:
