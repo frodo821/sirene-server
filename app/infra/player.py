@@ -53,7 +53,7 @@ class MidiPlayer:
 
   @property
   def playback_time(self) -> float:
-    return self.__tick_dur * self.ticks * 2
+    return self.__tick_dur * self.ticks
 
   @playback_time.setter
   def playback_time(self, value: float):
@@ -92,12 +92,12 @@ class MidiPlayer:
 
       note: Note = inst.notes[self.indices[idx]]
 
-      if abs(note.end / 2 - self.ticks * self.__tick_dur) < self.tick_dur:
+      if abs(note.end - self.ticks * self.__tick_dur) < self.tick_dur:
         self.connectors[idx].write(27)
         self.indices[idx] += 1
         self.playing_notes[idx] = -1
 
-      if abs(note.start / 2 - self.ticks * self.__tick_dur) < self.tick_dur:
+      if abs(note.start - self.ticks * self.__tick_dur) < self.tick_dur:
         pitch = note.pitch - 60
         self.connectors[idx].write(pitch)
         self.playing_notes[idx] = pitch
@@ -156,6 +156,9 @@ class MidiPlayer:
           else:
             self.reset()
 
-        sleep(max(self.tick_dur - (time() - frame_start_time), 0))
+        sleep_start = time()
+        while (max(self.tick_dur - (sleep_start - frame_start_time), 0)) > (time() - sleep_start):
+          sleep(0)
+
       except:
         print_exception(*exc_info())

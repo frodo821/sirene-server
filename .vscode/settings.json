@@ -4,4 +4,5 @@
     "--indent-size=2",
     "--ignore=E111, E114, E402, E501"
   ],
+  "python.pythonPath": "C:\\Users\\sakai\\AppData\\Local\\pypoetry\\Cache\\virtualenvs\\sirene-server-Kjtdu5WV-py3.9\\Scripts\\python.exe",
 }
