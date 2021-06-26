@@ -40,6 +40,12 @@ class MidiPlayer:
   def paused(self) -> bool:
     return self.__paused
 
+  @property
+  def tracks(self) -> Optional[int]:
+    if self.music is None:
+      return None
+    return len(self.music.midi.instruments)
+
   @resolution.setter
   def resolution(self, value: int):
     self.__resolution = value
@@ -142,7 +148,7 @@ class MidiPlayer:
           self.tick()
           self.ticks += 1
 
-        if all(i == -1 for i in self.indices):
+        if all(i == -1 for i in self.indices[:self.tracks]):
           if self.__loop:
             music: MidiFile = self.music
             self.reset()
