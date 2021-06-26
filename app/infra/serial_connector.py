@@ -1,7 +1,39 @@
+import pysinewave
 from serial import Serial
 from typing import List
 from time import sleep
 from warnings import warn
+from pysinewave import SineWave
+
+
+class MockingConnector:
+  __debugging = 0
+
+  class MockingPort:
+    def __init__(self, i) -> None:
+      self.port = f"DEBUG {i}"
+
+  def __init__(self) -> None:
+    self.sw = SineWave(pitch=0, pitch_per_second=1000, decibels_per_second=1000)
+    self.connector = MockingConnector.MockingPort(MockingConnector.__debugging)
+    self.playing = False
+    MockingConnector.__debugging += 1
+    self.sw.play()
+    self.sw.sinewave_generator.amplitude = 0.0
+
+  def write(self, num: int):
+    if num in (27, 28):
+      self.sw.sinewave_generator.amplitude = 0.0
+      self.playing = False
+      return
+
+    if not self.playing:
+      self.sw.sinewave_generator.amplitude = 1.0
+      self.playing = True
+    self.sw.set_pitch(num)
+
+  def close(self):
+    self.sw.stop()
 
 
 class SerialConnector:
@@ -56,8 +88,11 @@ class SerialConnector:
     self.connector.close()
 
   @classmethod
-  def scanPorts(cls, *, use_experimental_arduino_driver=False) -> List['SerialConnector']:
+  def scanPorts(cls, *, use_experimental_arduino_driver=False, debuging_virtual_devices=0) -> List['SerialConnector']:
     ports = []
+    for i in range(debuging_virtual_devices):
+      ports.append(MockingConnector())
+
     for i in range(256):
       port = f"COM{i}"
 
