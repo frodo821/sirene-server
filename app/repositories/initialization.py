@@ -33,6 +33,7 @@ frontend_loader = FrontendLoader(frontend.get('base_path'))
 
 player = MidiPlayer(
     config.get('time_resolution', 128),
-    use_experimental_arduino_driver=experimentals.get('next_gen_arduino_driver', False))
+    use_experimental_arduino_driver=experimentals.get('next_gen_arduino_driver', False),
+    debuging_virtual_devices=experimentals.get('debugging_devices', 0))
 
 lookup = FileLookup(config.get('midi_dir', './midis'))

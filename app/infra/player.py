@@ -7,12 +7,15 @@ from typing import List, Optional
 from app.domains.midi import MidiFile
 from app.infra.serial_connector import SerialConnector
 from fastapi.exceptions import HTTPException
-from pretty_midi import Instrument, Note
+from pretty_midi import Note
 
 
 class MidiPlayer:
-  def __init__(self, resolution: int, *, use_experimental_arduino_driver=False):
-    self.connectors: List[SerialConnector] = SerialConnector.scanPorts(use_experimental_arduino_driver=use_experimental_arduino_driver)
+  def __init__(self, resolution: int, *, use_experimental_arduino_driver=False, debuging_virtual_devices=0):
+    self.connectors: List[SerialConnector] = SerialConnector.scanPorts(
+        use_experimental_arduino_driver=use_experimental_arduino_driver,
+        debuging_virtual_devices=debuging_virtual_devices
+    )
     self.music: Optional[MidiFile] = None
     self.running: bool = True
     self.__paused: bool = False
@@ -44,7 +47,7 @@ class MidiPlayer:
 
   @property
   def playback_time(self) -> float:
-    return self.__tick_dur * self.ticks * 4
+    return self.__tick_dur * self.ticks * 2
 
   @playback_time.setter
   def playback_time(self, value: float):
@@ -83,12 +86,12 @@ class MidiPlayer:
 
       note: Note = inst.notes[self.indices[idx]]
 
-      if abs(note.end - self.ticks * self.__tick_dur) < self.tick_dur:
+      if abs(note.end / 2 - self.ticks * self.__tick_dur) < self.tick_dur:
         self.connectors[idx].write(27)
         self.indices[idx] += 1
         self.playing_notes[idx] = -1
 
-      if abs(note.start - self.ticks * self.__tick_dur) < self.tick_dur:
+      if abs(note.start / 2 - self.ticks * self.__tick_dur) < self.tick_dur:
         pitch = note.pitch - 60
         self.connectors[idx].write(pitch)
         self.playing_notes[idx] = pitch
