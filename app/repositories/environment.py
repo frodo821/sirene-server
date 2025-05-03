@@ -17,7 +17,7 @@ class FrontendConfig(BaseModel):
 
 
 class ExperimentalConfig(BaseModel):
-  next_gen_arduino_driver: bool = False
+  next_gen_arduino_driver: bool = True
   debugging_devices: int = 0
 
 
