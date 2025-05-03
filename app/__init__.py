@@ -1,7 +1,8 @@
 from contextlib import asynccontextmanager
+from os import environ
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from app.logger import get_logger
+from app.logger import get_logger, initialize, to_log_level
 from app.repositories.environment import Environment
 from app.routers import router
 from app.routers.frontend import router as frontend_router
@@ -11,6 +12,8 @@ logger = get_logger()
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+  initialize(to_log_level(environ.get('LOG_LEVEL', 'INFO')))
+  get_logger('uvicorn.access').setLevel('ERROR')
   logger.info('initializing environment')
   env = Environment.get_instance()
   yield

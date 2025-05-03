@@ -12,6 +12,7 @@ from logging import (
   Formatter,
   root,
 )
+import logging
 from sys import _getframe, stderr
 import sys
 import colorama as c
@@ -23,6 +24,26 @@ def get_logger(name: str | None = None) -> Logger:
     name = frame.f_globals.get('__name__', frame.f_code.co_qualname)
 
   return logging_getLogger(name)
+
+
+def to_log_level(log_level: str) -> int:
+  log_level = log_level.lower()
+
+  match log_level:
+    case "critical":
+      return logging.CRITICAL
+    case "error":
+      return logging.ERROR
+    case "warning":
+      return logging.WARNING
+    case "info":
+      return logging.INFO
+    case "debug":
+      return logging.DEBUG
+    case "trace":
+      return logging.NOTSET
+    case _:
+      return logging.INFO
 
 
 class _Formatter(Formatter):
