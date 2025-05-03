@@ -607,6 +607,15 @@ wheels = [
 ]
 
 [[package]]
+name = "setuptools"
+version = "80.2.0"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/24/65/19a02e93da9d9f118ecb311419a353ae68a8e236c057bf164c866daa227f/setuptools-80.2.0.tar.gz", hash = "sha256:16a390b41627e1455567193435e7cafa9101803ffaa2fdd9ecd0af098301981d", size = 1354232 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/51/95/522fb99f76ecf2efe0a372ee02665a3cda1e5653b37514fd05c98f05a9cf/setuptools-80.2.0-py3-none-any.whl", hash = "sha256:5f982284ad5d644764e1985baca205e235651b55f9a7ea8d46878d37104aa5e5", size = 1240763 },
+]
+
+[[package]]
 name = "shellingham"
 version = "1.5.4"
 source = { registry = "https://pypi.org/simple" }
@@ -627,6 +636,7 @@ dependencies = [
     { name = "pyserial" },
     { name = "pysinewave" },
     { name = "pyyaml" },
+    { name = "setuptools" },
     { name = "uvicorn" },
 ]
 
@@ -647,6 +657,7 @@ requires-dist = [
     { name = "pyserial", specifier = ">=3.5" },
     { name = "pysinewave", specifier = ">=0.0.7" },
     { name = "pyyaml", specifier = ">=6.0.2" },
+    { name = "setuptools", specifier = ">=80.2.0" },
     { name = "uvicorn", specifier = ">=0.34.2" },
 ]
 
