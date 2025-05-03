@@ -6,7 +6,7 @@ from app.domains.music import MusicPlayback
 
 
 class Port(BaseModel):
-  port: str
+  port: str | None
 
 
 class ServerStatus(BaseModel):

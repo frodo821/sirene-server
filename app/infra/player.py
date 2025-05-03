@@ -11,11 +11,24 @@ from pretty_midi import Note
 
 
 class MidiPlayer:
-  def __init__(self, resolution: int, *, use_experimental_arduino_driver=False, debuging_virtual_devices=0):
+
+  def __init__(
+    self,
+    resolution: int,
+    *,
+    use_experimental_arduino_driver: bool = False,
+    debugging_virtual_devices: int = 0
+  ):
     self.connectors: List[SerialConnector] = SerialConnector.scanPorts(
-        use_experimental_arduino_driver=use_experimental_arduino_driver,
-        debuging_virtual_devices=debuging_virtual_devices
+      use_experimental_arduino_driver=use_experimental_arduino_driver,
+      debugging_virtual_devices=debugging_virtual_devices
     )
+
+    if not self.connectors:
+      raise RuntimeError(
+        "No connected devices found. Please check the connection, or consider adding virtual devices via config."
+      )
+
     self.music: Optional[MidiFile] = None
     self.running: bool = True
     self.__paused: bool = False
@@ -79,6 +92,9 @@ class MidiPlayer:
       connector.write(28)
 
   def tick(self):
+    if self.music is None:
+      return
+
     for idx, inst in enumerate(self.music.midi.instruments):
       if not self.connectors[idx:]:
         break
@@ -104,7 +120,10 @@ class MidiPlayer:
 
   def playNote(self, port: str, note: int):
     if self.music and not self.__paused:
-      raise HTTPException(409, {"error": "server currently playing a music. pause or stop performance first."})
+      raise HTTPException(
+        409,
+        {"error": "server currently playing a music. pause or stop performance first."}
+      )
 
     conn = [conn for conn in self.connectors if conn.connector.port == port]
 
@@ -115,7 +134,10 @@ class MidiPlayer:
 
   def stopNote(self):
     if self.music and not self.__paused:
-      raise HTTPException(409, {"error": "server currently playing a music. pause or stop performance first."})
+      raise HTTPException(
+        409,
+        {"error": "server currently playing a music. pause or stop performance first."}
+      )
 
     for conn in self.connectors:
       conn.write(27)
@@ -141,6 +163,10 @@ class MidiPlayer:
 
   def run(self):
     while self.running:
+      if self.music is None:
+        sleep(0)
+        continue
+
       try:
         frame_start_time = time()
 

@@ -17,4 +17,4 @@ class FrontendLoader:
       return None
 
     with open(file, 'rb') as f:
-      return f.read(), guess_type(file)[0]
+      return f.read(), guess_type(file)[0] or "application/octet-stream"

@@ -1,9 +1,13 @@
-import pysinewave
 from serial import Serial
 from typing import List
 from time import sleep
 from warnings import warn
 from pysinewave import SineWave
+
+from app.logger import get_logger
+
+
+logger = get_logger()
 
 
 class MockingConnector:
@@ -44,11 +48,17 @@ class SerialConnector:
   SIGNATURE_SOPRANO = 0x0b
   SIGNATURE_ALTO = 0xbe
 
-  def __init__(self, port: str, *, use_experimental_arduino_driver=False):
+  def __init__(
+    self,
+    port: str,
+    *,
+    use_experimental_arduino_driver: bool = False,
+  ):
     self.connector: Serial = Serial(
-        port,
-        baudrate=19200,
-        timeout=1)
+      port=port,
+      baudrate=19200,
+      timeout=1,
+    )
 
     self.kind = SerialConnector.TYPE_UNKNOWN
 
@@ -81,17 +91,19 @@ class SerialConnector:
       else:
         warn(f"Out of bound note: {num}, it may be skipped.", RuntimeWarning)
 
-    self.connector.flushInput()
-    self.connector.flushOutput()
+    self.connector.flush()
 
   def close(self):
     self.connector.close()
 
   @classmethod
-  def scanPorts(cls, *, use_experimental_arduino_driver=False, debuging_virtual_devices=0) -> List['SerialConnector']:
+  def scanPorts(
+    cls,
+    *,
+    use_experimental_arduino_driver: bool = False,
+    debugging_virtual_devices: int = 0,
+  ) -> List['SerialConnector']:
     ports = []
-    for i in range(debuging_virtual_devices):
-      ports.append(MockingConnector())
 
     for i in range(256):
       port = f"COM{i}"
@@ -99,9 +111,12 @@ class SerialConnector:
       try:
         ports.append(cls(port, use_experimental_arduino_driver=use_experimental_arduino_driver))
       except RuntimeError as err:
-        print(err)
+        logger.error(err)
         continue
       except:
         pass
+
+    for i in range(debugging_virtual_devices):
+      ports.append(MockingConnector())
 
     return ports

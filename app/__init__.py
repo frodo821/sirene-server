@@ -1,21 +1,35 @@
-from fastapi import FastAPI, HTTPException
+from contextlib import asynccontextmanager
+from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-import app.logger
-from app.repositories.initialization import player
+from app.logger import get_logger
+from app.repositories.environment import Environment
 from app.routers import router
 from app.routers.frontend import router as frontend_router
 
-app = FastAPI()
+logger = get_logger()
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+  logger.info('initializing environment')
+  env = Environment.get_instance()
+  yield
+  logger.info('shutting down server')
+  env.player.close()
+
+
+app = FastAPI(lifespan=lifespan)
 
 app.add_middleware(
-    CORSMiddleware,
-    allow_origins='*',
-    allow_methods=('GET', 'POST', 'DELETE', 'OPTIONS'))
+  CORSMiddleware,
+  allow_origins='*',
+  allow_methods=(
+    'GET',
+    'POST',
+    'DELETE',
+    'OPTIONS',
+  ),
+)
 
 app.include_router(router)
 app.include_router(frontend_router)
-
-
-@app.on_event("shutdown")
-def shutdown():
-  player.close()
